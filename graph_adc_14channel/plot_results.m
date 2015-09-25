@@ -1,12 +1,17 @@
 clear all
 
 %data = load('data_worstcase.log');
-data = load('data.log');
+%data = load('data_140915_brunel.log');
+data = load('data_140915_worstcase.log');
+%data = load('data.log');
 
 L = 1;
 H = length(data);
 
-T1 = 1;
+% T1 = 1.5e5;
+% T2 = 2.4e5;
+%T1=1
+T1=34e3;
 T2 = data(H, end);
 %T1 = 1e5;
 %T2 = 1.5e5;
@@ -44,6 +49,10 @@ v12_v = data(L:H,13)*2.5/4096*6; % R divider = 124/(124+620) = 1/6
 v12_p = v12_i.*v12_v;
 %-------------------------------
 
+t=t/1000; % convert to seconds
+T1=T1/1000;
+T2=T2/1000;
+
 figure;
 subplot(3,1,1);
 %plot(t, banka_i, 'r');
@@ -55,7 +64,8 @@ set(ax(2), 'YLim', [0,20]);
 set(ax(2), 'YTick',[0:5:20]);
 set(ax(1), 'YLim', [0,1.6]);
 set(ax(1), 'YTick',[0:0.4:2]);
-
+set(ax(1), 'XLim', [T1 T2]);
+set(ax(2), 'XLim', [T1 T2]);
 
 subplot(3,1,2);
 ax=plotyy(t, bankb_v, t, bankb_p);
@@ -64,6 +74,8 @@ set(ax(2), 'YLim', [0,20]);
 set(ax(2), 'YTick',[0:5:20]);
 set(ax(1), 'YLim', [0,1.6]);
 set(ax(1), 'YTick',[0:0.4:2]);
+set(ax(1), 'XLim', [T1 T2]);
+set(ax(2), 'XLim', [T1 T2]);
 
 subplot(3,1,3);
 ax=plotyy(t, bankc_v, t, bankc_p);
@@ -72,6 +84,8 @@ set(ax(2), 'YLim', [0,20]);
 set(ax(2), 'YTick',[0:5:20]);
 set(ax(1), 'YLim', [0,1.6]);
 set(ax(1), 'YTick',[0:0.4:2]);
+set(ax(1), 'XLim', [T1 T2]);
+set(ax(2), 'XLim', [T1 T2]);
 
 %%
 figure;
@@ -136,7 +150,7 @@ ylabel('BankC P(W)');
 ylim([0 15]);
 xlim([T1 T2]);
 
-xlabel('Time (ms)');
+xlabel('Time (s)');
 %---------------------
 %---------------------
 
@@ -202,5 +216,44 @@ ylabel('12V P(W)');
 ylim([0 100]);
 xlim([T1 T2]);
 
-xlabel('Time (ms)');
+xlabel('Time (s)');
 
+%----------------------------------------
+% Plots for Newcastle meeting 14 Sep 2015
+%----------------------------------------
+f = figure;
+subplot(3,1,1);
+h(1) = plot(t, bankc_p);
+hold all;
+h(2) = plot(t, bankb_p);
+h(3) = plot(t, banka_p);
+
+order=[3 2 1];
+c={'Bank C (1.2V)', 'Bank B (1.2V)', 'Bank A (1.2V)'};
+legend(h(order), c{order});
+
+ylabel('P(W)');
+ylim([0 20]);
+xlim([T1 T2]);
+
+subplot(3,1,2);
+plot(t, v3_p);
+hold all
+plot(t, sdram_p);
+legend('Misc (3.3V)','SDRAM (1.8V)');
+
+ylabel('P(W)');
+ylim([0 10]);
+xlim([T1 T2]);
+
+subplot(3,1,3);
+plot(t, v12_p);
+ylabel('P(W)');
+ylim([0 100]);
+xlim([T1 T2]);
+legend('Total power (12V)');
+
+xlabel('Time (s)');
+
+%print(f, 'power_brunelsimulation', '-dpdf');
+print(f, 'power_worst', '-dpdf');
